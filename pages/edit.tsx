@@ -5,7 +5,6 @@ import { networks } from "./utils/networks"
 import polygonLogo from "../assets/polygonlogo.png";
 import ethLogo from "../assets/ethlogo.png";
 import contractAbi from './utils/contractAbi';
-
 import addNewLink from "./api/addNewLink";
 import getAllLinks from './api/getAllLinks';
 
@@ -84,7 +83,7 @@ export default function Edit(){
               params: [{ chainId: '0x13881' }],
             });
           }
-          catch (error) {
+          catch (error: any) {
             if (error.code === 4902) {
               try {
                 await window.ethereum.request({
