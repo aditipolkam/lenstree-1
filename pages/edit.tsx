@@ -6,6 +6,9 @@ import polygonLogo from "../assets/polygonlogo.png";
 import ethLogo from "../assets/ethlogo.png";
 import contractAbi from './utils/contractAbi';
 
+import addNewLink from "./api/addNewLink";
+import getAllLinks from './api/getAllLinks';
+
 //constants
 const CONTRACT_ADDRESS = "0x65f590cb68a3f08c76e7fAA835Aa6453b2328d1F"
 
@@ -112,25 +115,11 @@ export default function Edit(){
         }
   }
 
-  async function fetchLinks(){
-        console.log(currentAccount)
-        try{
-          const { ethereum } = window;
-          if(ethereum){
-            const provider = new ethers.providers.Web3Provider(ethereum);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, contractAbi.abi, signer);
-            //console.log(contract)
-            const links = await contract.getLinks(currentAccount);
-            if(links)
-              console.log(links);
-            else 
-              console.log("Empty links")
-          }
-        }
-        catch(error){
-          console.error(error)
-        }
+  
+
+  async function newLink() {
+    const result = await addNewLink("Instagram","https://instagram.com/aditipolkam");
+    console.log(result);
   }
 
   const renderProfile = () =>(
@@ -171,6 +160,7 @@ export default function Edit(){
           </div>
         </header>
       </div>
+      <button onClick={newLink}>Add Record</button>
       {!currentAccount && renderNotConnectedContainer()}
       {currentAccount && renderProfile()}
       {/* {mints && renderMints()} */}

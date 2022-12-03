@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { client, getPublications, getProfile } from "../api";
+import getAllLinks from "./api/getAllLinks";
 
 type Profile = {
   id: number;
@@ -24,6 +25,7 @@ export default function Profile() {
     handle: "",
   });
   const [publications, setPublications] = useState<Publication[]>([]);
+
   /* using the router we can get the lens handle from the route param */
   const router = useRouter();
   const { handle } = router.query;
@@ -31,7 +33,8 @@ export default function Profile() {
 
   useEffect(() => {
     if (handle) {
-      fetchProfile();
+      //fetchProfile();
+      fetchLinks();
     }
   }, [handle]);
 
@@ -71,6 +74,12 @@ export default function Profile() {
     }
   }
 
+  async function fetchLinks(){
+    const links = await getAllLinks(handle)
+    console.log(links)
+  }
+  
+
   if (!profile) {
     return null;
   } else {
@@ -96,6 +105,7 @@ export default function Profile() {
             </div>
           ))}
         </div>
+        
       </div>
     );
   }
