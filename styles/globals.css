@@ -11,6 +11,15 @@ a {
   text-decoration: none;
 }
 
+button,
+a {
+  background-color: #ef798a;
+  color: white;
+  padding: 1em;
+  font: bold;
+  border-radius: 1em;
+}
+
 * {
   box-sizing: border-box;
 }
