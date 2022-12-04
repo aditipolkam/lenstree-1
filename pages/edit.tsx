@@ -157,15 +157,8 @@ export default function Edit() {
   //   );
   //   console.log(result);
   // }
-  async function fetchLinks() {
-    const lks = await getAllLinks(currentAccount);
-    if (lks) {
-      setLinks(lks);
-    }
-    console.log(links);
-  }
 
-  const renderProfile = async () => (
+  const renderProfile = () => (
     <div>
       wallet connected! Your current links are ={">"}
       <ul>
@@ -187,37 +180,74 @@ export default function Edit() {
   }, []);
 
   useEffect(() => {
-    if (network === "Polygon Mumbai Testnet") {
-      console.log("fetching links");
-      fetchLinks();
+    console.log("something Changed", currentAccount, links);
+    async function fetchLinks() {
+      const lks = await getAllLinks(currentAccount);
+      if (lks) {
+        setLinks(lks);
+      }
     }
-  }, [currentAccount, network]);
+    fetchLinks();
+  }, [currentAccount]);
+  // useEffect(() => {
+  //   if (network === 'Polygon Mumbai Testnet') {
+  //     console.log("fetching links")
+  //     fetchLinks();
+  //   }
+  // }, [currentAccount, network]);
 
   return (
-    <div>
-      <div className="container">
-        <div className="header-container">
-          <header>
-            <div className="left">
-              <h1 className="text-5xl font-Josefin">LensTree</h1>
-            </div>
-            <div className="right">
-              {/* <Image alt="Network logo" className="logo" src={network.includes("Polygon") ? polygonLogo : ethLogo} /> */}
-              {currentAccount ? (
-                <p>
-                  {" "}
-                  Wallet: {currentAccount.slice(0, 6)}...
-                  {currentAccount.slice(-4)}{" "}
-                </p>
-              ) : (
-                <p> Not connected </p>
-              )}
-            </div>
-          </header>
-        </div>
-        {!currentAccount && renderNotConnectedContainer()}
-        {currentAccount && renderProfile()}
+    <div className="container text-center flex flex-col align-middle justify-center">
+      <div className="header-container">
+        <header>
+          <div className="left">
+            <h1 className="text-5xl font-Josefin">LensTree</h1>
+          </div>
+          <div className="right">
+            {/* <Image alt="Network logo" className="logo" src={network.includes("Polygon") ? polygonLogo : ethLogo} /> */}
+            {currentAccount ? (
+              <p>
+                {" "}
+                Wallet: {currentAccount.slice(0, 6)}...
+                {currentAccount.slice(-4)}{" "}
+              </p>
+            ) : (
+              <p> Not connected </p>
+            )}
+          </div>
+        </header>
       </div>
+      {currentAccount ? renderProfile() : renderNotConnectedContainer()}
+      <form
+        onSubmit={handleSubmit}
+        className="border-solid- border-2 border-black"
+        action=""
+      >
+        <input
+          className="text-xl text-center mr-4 border-solid- border-2 border-blue"
+          type="text"
+          name="name"
+          id="name"
+          placeholder="Name"
+          onChange={handleChange}
+        />
+        ={">"}
+        <input
+          className="text-xl text-center ml-4 border-solid- border-2 border-blue"
+          type="text"
+          name="url"
+          id="url"
+          placeholder="URL"
+          onChange={handleChange}
+        />
+        <br />
+        <button
+          className="text-l bg-red-300 min-h-[5vh] min-w-[5vw] rounded p-3 mt-4"
+          type="submit"
+        >
+          Add Record
+        </button>
+      </form>
     </div>
   );
 }
