@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { client, getPublications, getProfile } from "../api";
+import {
+  client,
+  getPublications,
+  getProfile,
+  getAddressByHandle,
+} from "../api";
 import getAllLinks from "./api/getAllLinks";
+import Link from "next/link";
 
 type Profile = {
   id: number;
@@ -17,6 +23,9 @@ type Publication = {
 };
 
 export default function Profile() {
+  const [userHandle, setUserHandle] = useState("");
+  const [userAddress, setUserAddress] = useState("");
+  const [links, setLinks] = useState([]);
   /* create initial state to hold user profile and array of publications */
   const [profile, setProfile] = useState<Profile>({
     id: 0,
@@ -26,18 +35,44 @@ export default function Profile() {
   });
   const [publications, setPublications] = useState<Publication[]>([]);
 
-  /* using the router we can get the lens handle from the route param */
   const router = useRouter();
   const { handle } = router.query;
-  console.log(handle)
+  console.debug("Query Paramenteres: ", router.query);
 
   useEffect(() => {
-    if (handle) {
-      //fetchProfile();
-      fetchLinks();
+    try {
+      if (handle && typeof handle === "string") {
+        if (handle.endsWith(".lens")) {
+          //setUserHandle(handle);
+          fetchProfile();
+          getAddress(handle).then((addr) =>
+            setUserAddress(addr?.data.profile.ownedBy)
+          );
+          //setUserAddress(addr);
+        } else {
+          console.log("hi", userAddress);
+          //fetchLinks(userAddress);
+        }
+        fetchLinks();
+      }
+    } catch (err) {
+      console.error(err);
     }
   }, [handle]);
 
+  async function getAddress(handle: string) {
+    try {
+      console.log("querying for handle: ", handle);
+      const addressProfile = await client.query<string>({
+        query: getAddressByHandle,
+        variables: { handle },
+      });
+      console.log("addr", addressProfile);
+      return addressProfile;
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async function fetchProfile() {
     try {
       /* fetch the user profile using their handle */
@@ -46,6 +81,7 @@ export default function Profile() {
         variables: { handle },
       });
       const profileData = { ...returnedProfile.data.profile };
+      //console.log(returnedProfile);
       /* format their picture if it is not in the right format */
       const picture = profileData.picture;
       if (picture && picture.original && picture.original.url) {
@@ -73,18 +109,31 @@ export default function Profile() {
       console.log("error fetching profile...", err);
     }
   }
+  async function fetchLinks() {
+    const lks = await getAllLinks(userAddress);
+    setLinks(lks);
+    //links.map();
 
-  async function fetchLinks(){
-    const links = await getAllLinks(handle)
-    console.log(links)
+    console.log(links);
   }
-  
 
   if (!profile) {
     return null;
   } else {
     return (
       <div className="profile-frame">
+        <div className="links-section">
+          {links &&
+            links.map((link) => {
+              return (
+                <div key={link[0]}>
+                  <a href={link[2]} target={"_blank"}>
+                    {link[1]}
+                  </a>
+                </div>
+              );
+            })}
+        </div>
         <div className="profile-details">
           <Image
             alt="test"
@@ -94,9 +143,7 @@ export default function Profile() {
             src={profile.avatarUrl}
           />
           <p className="">{profile.handle}</p>
-          <p className="">
-            {profile.bio}
-          </p>
+          <p className="">{profile.bio}</p>
         </div>
         <div className="profile-publications">
           {publications.map((pub) => (
@@ -105,7 +152,6 @@ export default function Profile() {
             </div>
           ))}
         </div>
-        
       </div>
     );
   }
