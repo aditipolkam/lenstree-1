@@ -4,6 +4,7 @@ import { networks } from "./utils/networks";
 import addNewLink from "./api/addNewLink";
 import getAllLinks from "./api/getAllLinks";
 import { link } from "fs";
+import deleteLink from "./api/deleteLink";
 
 //constants
 const CONTRACT_ADDRESS = "0x65f590cb68a3f08c76e7fAA835Aa6453b2328d1F";
@@ -31,7 +32,6 @@ export default function Edit() {
     event.preventDefault();
     console.log(inputs);
     await addNewLink(inputs.name, inputs.url);
-    // alert(JSON.stringify(inputs));
   };
 
   const connectWallet = async () => {
@@ -153,16 +153,20 @@ export default function Edit() {
   //   console.log(result);
   // }
 
-  const renderProfile = () => (
+  const renderLinks = () => (
     <div>
       wallet connected! Your current links are ={">"}
       <ul>
         {links.map((link) => {
+          if (!link.url || !link.name) return;
           return (
-            <div key={link.id}>
+            <div className="" key={link.id}>
               <a href={link.url} target={"_blank"} rel="noreferrer">
                 {link.name}
               </a>
+              <button className="ml-4" onClick={() => removeLink(link.id)}>
+                Delete
+              </button>
             </div>
           );
         })}
@@ -184,15 +188,18 @@ export default function Edit() {
     }
     fetchLinks();
   }, [currentAccount]);
-  // useEffect(() => {
-  //   if (network === 'Polygon Mumbai Testnet') {
-  //     console.log("fetching links")
-  //     fetchLinks();
-  //   }
-  // }, [currentAccount, network]);
+
+  const removeLink = async (id: number) => {
+    let status = await deleteLink(id, currentAccount);
+    if (status) {
+      setLinks((prev) => {
+        return prev.filter((val, i) => val.id !== id);
+      }); 
+    }
+  };
 
   return (
-    <div className="container text-center flex flex-col align-middle justify-center">
+    <div className="container text-center flex flex-col align-middle justify-center p-6 ">
       <div className="header-container">
         <header>
           <div className="left">
@@ -212,7 +219,7 @@ export default function Edit() {
           </div>
         </header>
       </div>
-      {currentAccount ? renderProfile() : renderNotConnectedContainer()}
+      {currentAccount ? renderLinks() : renderNotConnectedContainer()}
       <form
         onSubmit={handleSubmit}
         className="border-solid- border-2 border-black"
