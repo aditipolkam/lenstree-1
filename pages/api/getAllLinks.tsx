@@ -19,7 +19,7 @@ export default async function getAllLinks(currentAccount: any) {
       //console.log(contract)
       const links = await contract.getLinks(currentAccount);
       if (links) {
-        console.log("Links", links);
+        console.debug("Links", links);
         let returnable_links: {id: number, name: string, url:string}[] = [];
         for (let i = 0; i < links.length; i++) {
           console.log(i, links[i]);
@@ -30,9 +30,12 @@ export default async function getAllLinks(currentAccount: any) {
           });
         }
         return returnable_links;
-      } else console.log("Empty links");
+      } else {
+        console.debug("Empty links")};
+        return [];
     }
   } catch (error) {
     console.error(error);
   }
+  return [];
 }

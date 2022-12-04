@@ -63,7 +63,7 @@ export default function Profile() {
   async function getAddress(handle: string) {
     try {
       console.log("querying for handle: ", handle);
-      const addressProfile = await client.query<string>({
+      const addressProfile = await client.query<any>({
         query: getAddressByHandle,
         variables: { handle },
       });
