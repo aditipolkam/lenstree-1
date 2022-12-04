@@ -92,22 +92,32 @@ export default function Edit() {
         if (error.code === 4902) {
           try {
             await window.ethereum.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: "0x13881",
-                  chainName: "Polygon Mumbai Testnet",
-                  rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
-                  nativeCurrency: {
-                    name: "Mumbai Matic",
-                    symbol: "MATIC",
-                    decimals: 18,
-                  },
-                  blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
-                },
-              ],
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: "0x13881" }],
             });
           } catch (error) {
+            if (error.code === 4902) {
+              try {
+                await window.ethereum.request({
+                  method: "wallet_addEthereumChain",
+                  params: [
+                    {
+                      chainId: "0x13881",
+                      chainName: "Polygon Mumbai Testnet",
+                      rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+                      nativeCurrency: {
+                        name: "Mumbai Matic",
+                        symbol: "MATIC",
+                        decimals: 18,
+                      },
+                      blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+                    },
+                  ],
+                });
+              } catch (error) {
+                console.log(error);
+              }
+            }
             console.log(error);
           }
         }

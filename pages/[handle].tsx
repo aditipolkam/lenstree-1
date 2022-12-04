@@ -94,27 +94,25 @@ export default function Profile() {
         } else {
           profileData.avatarUrl = profileData.picture.original.url;
         }
+        setProfile(profileData);
+        /* fetch the user's publications from the Lens API and set them in the state */
+        const pubs = await client.query({
+          query: getPublications,
+          variables: {
+            id: profileData.id,
+            limit: 50,
+          },
+        });
+        setPublications(pubs.data.publications.items);
+      } catch (err) {
+        console.log("error fetching profile...", err);
       }
-      setProfile(profileData);
-      /* fetch the user's publications from the Lens API and set them in the state */
-      const pubs = await client.query({
-        query: getPublications,
-        variables: {
-          id: profileData.id,
-          limit: 50,
-        },
-      });
-      setPublications(pubs.data.publications.items);
-    } catch (err) {
-      console.log("error fetching profile...", err);
     }
   }
-  async function fetchLinks() {
-    const lks = await getAllLinks(userAddress);
-    setLinks(lks);
-    //links.map();
 
-    console.log(links);
+  async function fetchLinks(){
+    const links = await getAllLinks(handle)
+    console.log(links)
   }
 
   if (!profile) {
