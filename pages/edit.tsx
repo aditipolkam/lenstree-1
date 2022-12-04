@@ -180,7 +180,7 @@ export default function Edit() {
   }, []);
 
   useEffect(() => {
-    console.log("something Changed", currentAccount, links);
+    console.log("something Changed", currentAccount);
     async function fetchLinks() {
       const lks = await getAllLinks(currentAccount);
       if (lks) {

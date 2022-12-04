@@ -25,8 +25,9 @@ type Publication = {
 export default function Profile() {
   const [userHandle, setUserHandle] = useState("");
   const [userAddress, setUserAddress] = useState("");
-  const [links, setLinks] = useState([]);
-  /* create initial state to hold user profile and array of publications */
+  const [links, setLinks] = useState<
+    { id: number; name: string; url: string }[]
+  >([]);
   const [profile, setProfile] = useState<Profile>({
     id: 0,
     avatarUrl: "",
@@ -40,25 +41,66 @@ export default function Profile() {
   console.debug("Query Paramenteres: ", router.query);
 
   useEffect(() => {
+    async function fetchProfile(handle: string) {
+      try {
+        /* fetch the user profile using their handle */
+        const returnedProfile = await client.query({
+          query: getProfile,
+          variables: { handle },
+        });
+        const profileData = { ...returnedProfile.data.profile };
+        //console.log(returnedProfile);
+        /* format their picture if it is not in the right format */
+        const picture = profileData.picture;
+        if (picture && picture.original && picture.original.url) {
+          if (picture.original.url.startsWith("ipfs://")) {
+            let result = picture.original.url.substring(
+              7,
+              picture.original.url.length
+            );
+            profileData.avatarUrl = `http://lens.infura-ipfs.io/ipfs/${result}`;
+          } else {
+            profileData.avatarUrl = profileData.picture.original.url;
+          }
+          setProfile(profileData);
+          /* fetch the user's publications from the Lens API and set them in the state */
+          const pubs = await client.query({
+            query: getPublications,
+            variables: {
+              id: profileData.id,
+              limit: 50,
+            },
+          });
+          setPublications(pubs.data.publications.items);
+        }
+      } catch (err: any) {
+        console.log("error", err);
+      }
+    }
     try {
       if (handle && typeof handle === "string") {
         if (handle.endsWith(".lens")) {
           //setUserHandle(handle);
-          fetchProfile();
-          getAddress(handle).then((addr) =>
-            setUserAddress(addr?.data.profile.ownedBy)
-          );
-          //setUserAddress(addr);
+          fetchProfile(handle);
+          getAddress(handle).then((address) => {
+            console.log("Setting user address to ", address);
+            setUserAddress(address);
+          });
         } else {
-          console.log("hi", userAddress);
-          //fetchLinks(userAddress);
+          setUserAddress(handle);
         }
-        fetchLinks();
       }
     } catch (err) {
       console.error(err);
     }
   }, [handle]);
+  useEffect(() => {
+    console.log("Wallet Address", userAddress);
+    getAllLinks(userAddress).then((res) => {
+      console.debug(res);
+      setLinks(res);
+    });
+  }, [userAddress]);
 
   async function getAddress(handle: string) {
     try {
@@ -67,72 +109,19 @@ export default function Profile() {
         query: getAddressByHandle,
         variables: { handle },
       });
-      console.log("addr", addressProfile);
-      return addressProfile;
+      console.log("found address", addressProfile);
+      return addressProfile?.data.profile.ownedBy;
     } catch (error) {
       console.log(error);
     }
-  }
-  async function fetchProfile() {
-    try {
-      /* fetch the user profile using their handle */
-      const returnedProfile = await client.query({
-        query: getProfile,
-        variables: { handle },
-      });
-      const profileData = { ...returnedProfile.data.profile };
-      //console.log(returnedProfile);
-      /* format their picture if it is not in the right format */
-      const picture = profileData.picture;
-      if (picture && picture.original && picture.original.url) {
-        if (picture.original.url.startsWith("ipfs://")) {
-          let result = picture.original.url.substring(
-            7,
-            picture.original.url.length
-          );
-          profileData.avatarUrl = `http://lens.infura-ipfs.io/ipfs/${result}`;
-        } else {
-          profileData.avatarUrl = profileData.picture.original.url;
-        }
-        setProfile(profileData);
-        /* fetch the user's publications from the Lens API and set them in the state */
-        const pubs = await client.query({
-          query: getPublications,
-          variables: {
-            id: profileData.id,
-            limit: 50,
-          },
-        });
-        setPublications(pubs.data.publications.items);
-      }
-    } catch (err: any) {
-      console.log("error", err);
-    }
-  }
-
-  async function fetchLinks() {
-    const links = await getAllLinks(handle);
-    console.log(links);
   }
 
   if (!profile) {
     return null;
   } else {
     return (
-      <div className="profile-frame">
-        <div className="links-section">
-          {links &&
-            links.map((link) => {
-              return (
-                <div key={link[0]}>
-                  <a href={link[2]} target={"_blank"} rel="noreferrer">
-                    {link[1]}
-                  </a>
-                </div>
-              );
-            })}
-        </div>
-        <div className="profile-details">
+      <div className="flex flex-col items-center">
+        <div className="profile-details flex flex-col items-center">
           <Image
             alt="test"
             className=""
@@ -140,7 +129,7 @@ export default function Profile() {
             height={200}
             src={profile.avatarUrl}
           />
-          <p className="">{profile.handle}</p>
+          <p className="">@{profile.handle}</p>
           <p className="">{profile.bio}</p>
         </div>
         <div className="profile-publications">
@@ -149,6 +138,19 @@ export default function Profile() {
               <p>{pub.metadata.content}</p>
             </div>
           ))}
+        </div>
+        <div className="links-section">
+          <ul>
+            {links.map((link) => {
+              return (
+                <div key={link.id}>
+                  <a href={link.url} target={"_blank"} rel="noreferrer">
+                    {link.name}
+                  </a>
+                </div>
+              );
+            })}
+          </ul>
         </div>
       </div>
     );
