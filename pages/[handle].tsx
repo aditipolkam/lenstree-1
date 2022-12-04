@@ -28,6 +28,7 @@ export default function Profile() {
   const [links, setLinks] = useState<
     { id: number; name: string; url: string }[]
   >([]);
+  /* create initial state to hold user profile and array of publications */
   const [profile, setProfile] = useState<Profile>({
     id: 0,
     avatarUrl: "",
