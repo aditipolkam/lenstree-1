@@ -1,10 +1,5 @@
-import Image from "next/image";
-import { ethers } from "ethers";
 import { useState, useEffect, MouseEventHandler } from "react";
 import { networks } from "./utils/networks";
-import polygonLogo from "../assets/polygonlogo.png";
-import ethLogo from "../assets/ethlogo.png";
-import contractAbi from "./utils/contractAbi";
 
 import addNewLink from "./api/addNewLink";
 import getAllLinks from "./api/getAllLinks";

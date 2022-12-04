@@ -130,21 +130,22 @@ export default function Profile() {
             height={200}
             src={profile.avatarUrl}
           />
-          <p className="">@{profile.handle}</p>
-          <p className="">{profile.bio}</p>
+          <p className="text-xl font-bold font-Josefin">@{profile.handle}</p>
+          <p className="text-center font-semibold">{profile.bio}</p>
         </div>
-        <div className="profile-publications">
+        <div className="profile-publications text-center">
           {publications.map((pub) => (
             <div key={pub.id} className="">
-              <p>{pub.metadata.content}</p>
+              <span className="inline-block">{">>>>"}</span><p>{pub.metadata.content}</p>
             </div>
           ))}
         </div>
         <div className="links-section">
+          The Links Shared are
           <ul>
             {links.map((link) => {
               return (
-                <div key={link.id}>
+                <div className="border-solid m-2 p-4 border-cyan-300 bg-gray-300 border-1 rounded-sm text-center " key={link.id}>
                   <a href={link.url} target={"_blank"} rel="noreferrer">
                     {link.name}
                   </a>
