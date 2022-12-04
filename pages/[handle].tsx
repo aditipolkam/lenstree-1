@@ -25,7 +25,9 @@ type Publication = {
 export default function Profile() {
   const [userHandle, setUserHandle] = useState("");
   const [userAddress, setUserAddress] = useState("");
-  const [links, setLinks] = useState([]);
+  const [links, setLinks] = useState<
+    { id: number; name: string; url: string }[]
+  >([]);
   /* create initial state to hold user profile and array of publications */
   const [profile, setProfile] = useState<Profile>({
     id: 0,
@@ -121,16 +123,15 @@ export default function Profile() {
     return (
       <div className="profile-frame">
         <div className="links-section">
-          {links &&
-            links.map((link) => {
-              return (
-                <div key={link[0]}>
-                  <a href={link[2]} target={"_blank"} rel="noreferrer">
-                    {link[1]}
-                  </a>
-                </div>
-              );
-            })}
+          {links.map((link) => {
+            return (
+              <div key={link.id}>
+                <a href={link.url} target={"_blank"} rel="noreferrer">
+                  {link.name}
+                </a>
+              </div>
+            );
+          })}
         </div>
         <div className="profile-details">
           <Image
