@@ -104,15 +104,15 @@ export default function Profile() {
           },
         });
         setPublications(pubs.data.publications.items);
-      } catch (err) {
-        console.log("error fetching profile...", err);
       }
+    } catch (err: any) {
+      console.log("error", err);
     }
   }
 
-  async function fetchLinks(){
-    const links = await getAllLinks(handle)
-    console.log(links)
+  async function fetchLinks() {
+    const links = await getAllLinks(handle);
+    console.log(links);
   }
 
   if (!profile) {
@@ -125,7 +125,7 @@ export default function Profile() {
             links.map((link) => {
               return (
                 <div key={link[0]}>
-                  <a href={link[2]} target={"_blank"}>
+                  <a href={link[2]} target={"_blank"} rel="noreferrer">
                     {link[1]}
                   </a>
                 </div>
