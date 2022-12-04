@@ -88,14 +88,14 @@ export default function Edit() {
           method: "wallet_switchEthereumChain",
           params: [{ chainId: "0x13881" }],
         });
-      } catch (error) {
+      } catch (error: any) {
         if (error.code === 4902) {
           try {
             await window.ethereum.request({
               method: "wallet_switchEthereumChain",
               params: [{ chainId: "0x13881" }],
             });
-          } catch (error) {
+          } catch (error: any) {
             if (error.code === 4902) {
               try {
                 await window.ethereum.request({
