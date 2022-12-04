@@ -16,10 +16,14 @@ export default async function addNewLink(name:String, url:String){
         let tx = await contract.addLink(name,url);
         tx.wait();
         console.log(tx);
-        
+        return true
+      }
+      else {
+        return false
       }
     }
     catch(error){
       console.error(error)
+      return false
     }
 }
